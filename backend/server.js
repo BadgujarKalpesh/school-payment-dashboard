@@ -233,7 +233,7 @@ const paymentController = {
         const custom_order_id = `ORD-${Date.now()}`;
         
         // const callback_url = process.env.FRONTEND_URL || 'http://localhost:5173/dashboard';
-        const callback_url = 'https://bdd4c8690081.ngrok-free.app/api/payment/webhook'
+        const callback_url = 'https://edbfb7129d8e.ngrok-free.app/api/payment/webhook'
 
         const signPayload = {
             school_id: process.env.DEFAULT_SCHOOL_ID,
@@ -279,7 +279,7 @@ const paymentController = {
         });
         await newOrderStatus.save();
 
-        console.log(" Collect_request_url : ", collect_request_url)
+        // console.log(" Collect_request_url : ", collect_request_url)
 
         res.json({ paymentUrl: collect_request_url });
 
@@ -295,76 +295,64 @@ const paymentController = {
    // File: backend/server.js
 
 handleWebhook: async (req, res) => {
-    // =================================================================
-    // START: ADDED FOR DEBUGGING
-    // =================================================================
-    console.log("==============================================");
-    console.log("✅ WEBHOOK RECEIVED!");
-    console.log("Timestamp:", new Date().toISOString());
-    console.log("Full Payload:", JSON.stringify(req.body, null, 2));
-    // =================================================================
-    // END: ADDED FOR DEBUGGING
-    // =================================================================
-    
-    const payload = req.body;
-    
-    const log = new WebhookLog({ payload });
-    await log.save();
-    
-    try {
-        const { order_info } = payload;
-        if (!order_info || !order_info.order_id) {
-            console.error("❌ ERROR: Invalid payload structure. Missing order_info or order_id.");
-            log.processing_status = 'ERROR';
-            log.error_message = 'Invalid payload structure: missing order_info or order_id';
-            await log.save();
-            return res.status(400).send('Invalid payload');
-        }
+        console.log("==============================================");
+        console.log("✅ WEBHOOK RECEIVED!");
+        console.log("Timestamp:", new Date().toISOString());
         
-        const collect_id = order_info.order_id;
-        console.log(`ℹ️  Attempting to find and update order with collect_id: ${collect_id}`);
+        const payload = req.body;
+        console.log("Full Payload:", JSON.stringify(payload, null, 2));
 
-        const updatedStatus = await OrderStatus.findOneAndUpdate(
-            { collect_id: collect_id },
-            {
-                $set: {
-                    status: order_info.status === 'success' ? 'SUCCESS' : 'FAILED',
-                    transaction_amount: order_info.transaction_amount,
-                    payment_mode: order_info.payment_mode,
-                    payment_details: order_info.payemnt_details,
-                    bank_reference: order_info.bank_reference,
-                    payment_message: order_info.Payment_message,
-                    payment_time: new Date(order_info.payment_time),
-                    error_message: order_info.error_message,
-                }
-            },
-            { new: true } // This option returns the modified document
-        );
-
-        if (!updatedStatus) {
-            console.error(`❌ ERROR: OrderStatus not found in the database for collect_id: ${collect_id}`);
-            log.processing_status = 'ERROR';
-            log.error_message = `Order status not found for collect_id: ${collect_id}`;
-            await log.save();
-            return res.status(404).send('Order status not found');
-        }
-
-        console.log("✅ SUCCESS: OrderStatus updated successfully in the database.");
-        console.log("Updated Document:", updatedStatus);
-        
-        log.processing_status = 'PROCESSED';
+        const log = new WebhookLog({ payload });
         await log.save();
-
-        res.status(200).send('Webhook processed successfully');
         
-    } catch (error) {
-        console.error("❌ FATAL WEBHOOK ERROR:", error.message);
-        log.processing_status = 'ERROR';
-        log.error_message = error.message;
-        await log.save();
-        res.status(500).send('Internal Server Error');
+        try {
+            const { order_info } = payload;
+            if (!order_info || !order_info.order_id) {
+                log.processing_status = 'ERROR';
+                log.error_message = 'Invalid payload structure';
+                await log.save();
+                return res.status(400).send('Invalid payload');
+            }
+            
+            const collect_id = order_info.order_id;
+
+            const updatedStatus = await OrderStatus.findOneAndUpdate(
+                { collect_id: collect_id },
+                {
+                    $set: {
+                        status: order_info.status === 'success' ? 'SUCCESS' : 'FAILED',
+                        transaction_amount: order_info.transaction_amount,
+                        payment_mode: order_info.payment_mode,
+                        payment_details: order_info.payemnt_details, // Typo in original spec, matching it
+                        bank_reference: order_info.bank_reference,
+                        payment_message: order_info.Payment_message, // Typo in original spec, matching it
+                        payment_time: new Date(order_info.payment_time),
+                        error_message: order_info.error_message,
+                    }
+                },
+                { new: true }
+            );
+
+            if (!updatedStatus) {
+                log.processing_status = 'ERROR';
+                log.error_message = `OrderStatus not found for collect_id: ${collect_id}`;
+                await log.save();
+                return res.status(404).send('Order status not found');
+            }
+
+            console.log("✅ SUCCESS: OrderStatus updated successfully in the database.");
+            log.processing_status = 'PROCESSED';
+            await log.save();
+            res.status(200).send('Webhook processed successfully');
+            
+        } catch (error) {
+            console.error("❌ FATAL WEBHOOK ERROR:", error.message);
+            log.processing_status = 'ERROR';
+            log.error_message = error.message;
+            await log.save();
+            res.status(500).send('Internal Server Error');
+        }
     }
-}
 };
 
 // =================================================================================================
@@ -484,8 +472,10 @@ app.use('/api/auth', authRouter);
 
 // --- Payment Routes ---
 const paymentRouter = express.Router();
-paymentRouter.post('/create-payment', verifyToken, paymentController.createPayment);
-paymentRouter.post('/webhook', express.json({ type: '*/*' }), paymentController.handleWebhook); 
+// Protected route uses the standard json parser
+paymentRouter.post('/create-payment', verifyToken, paymentController.createPayment); 
+// Public webhook uses a special parser that accepts any content type
+paymentRouter.post('/webhook', express.json({ type: '*/*' }), paymentController.handleWebhook);
 app.use('/api/payment', paymentRouter);
 
 // --- Transaction Routes ---
