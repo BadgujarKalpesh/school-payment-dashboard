@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../services/api';
-import CreatePaymentModal from '../components/CreatePaymentModal';
-import CheckStatusModal from '../components/CheckStatusModal';
+// import CreatePaymentModal from '../components/CreatePaymentModal';
+// import CheckStatusModal from '../components/CheckStatusModal';
 
 const SortableHeader = ({ children, columnKey, sortConfig, setSortConfig }) => {
     const isSorted = sortConfig.key === columnKey;
@@ -23,11 +23,13 @@ const DashboardPage = () => {
     const [error, setError] = useState('');
     const [totalPages, setTotalPages] = useState(0);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [sortConfig, setSortConfig] = useState({ key: searchParams.get('sort') || 'payment_time', direction: searchParams.get('order') || 'desc' });
-    const [filters, setFilters] = useState({ status: searchParams.get('status') || '', schoolId: searchParams.get('schoolId') || '' });
+const [sortConfig, setSortConfig] = useState({ 
+        key: searchParams.get('sort') || 'createdAt', 
+        direction: searchParams.get('order') || 'desc' 
+    });    const [filters, setFilters] = useState({ status: searchParams.get('status') || '', schoolId: searchParams.get('schoolId') || '' });
     const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
-    const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
-    const [isStatusModalOpen, setStatusModalOpen] = useState(false);
+    // const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
+    // const [isStatusModalOpen, setStatusModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -41,6 +43,7 @@ const DashboardPage = () => {
 
                 const response = await api.get('/transactions', { params });
                 setTransactions(response.data.transactions);
+                console.log("transactions ; ", transactions)
                 setTotalPages(response.data.totalPages);
             } catch (err) {
                 setError('Failed to fetch transactions.');
@@ -65,10 +68,10 @@ const DashboardPage = () => {
         <div className="container mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold">Transactions</h1>
-                <div className="flex space-x-4">
+                {/* <div className="flex space-x-4">
                     <button onClick={() => setStatusModalOpen(true)} className="px-4 py-2 bg-white border rounded-md">Check Status</button>
                     <button onClick={() => setPaymentModalOpen(true)} className="px-4 py-2 bg-indigo-600 text-white rounded-md">Create Payment</button>
-                </div>
+                </div> */}
             </div>
             <div className="p-4 bg-white rounded-lg shadow mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -87,6 +90,7 @@ const DashboardPage = () => {
                     <table className="min-w-full divide-y">
                         <thead className="bg-gray-50">
                             <tr>
+                                <SortableHeader columnKey="name" sortConfig={sortConfig} setSortConfig={setSortConfig}>Name</SortableHeader>
                                 <SortableHeader columnKey="custom_order_id" sortConfig={sortConfig} setSortConfig={setSortConfig}>Order ID</SortableHeader>
                                 <SortableHeader columnKey="school_id" sortConfig={sortConfig} setSortConfig={setSortConfig}>School ID</SortableHeader>
                                 <SortableHeader columnKey="status" sortConfig={sortConfig} setSortConfig={setSortConfig}>Status</SortableHeader>
@@ -104,6 +108,7 @@ const DashboardPage = () => {
                             ) : (
                                 transactions.map((tx) => (
                                     <tr key={tx.collect_id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">{tx.student_info.name}</td>
                                         <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">{tx.custom_order_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap">{tx.school_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap">
@@ -127,8 +132,8 @@ const DashboardPage = () => {
                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-4 py-2 border rounded-md disabled:opacity-50">Next</button>
                 </div>
             )}
-            {isPaymentModalOpen && <CreatePaymentModal onClose={() => setPaymentModalOpen(false)} />}
-            {isStatusModalOpen && <CheckStatusModal onClose={() => setStatusModalOpen(false)} />}
+            {/* {isPaymentModalOpen && <CreatePaymentModal onClose={() => setPaymentModalOpen(false)} />}
+            {isStatusModalOpen && <CheckStatusModal onClose={() => setStatusModalOpen(false)} />} */}
         </div>
     );
 };

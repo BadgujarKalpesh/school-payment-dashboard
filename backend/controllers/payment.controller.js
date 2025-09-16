@@ -8,68 +8,68 @@ const axios = require('axios')
 const paymentController = {
     createPayment : async (req, res) => {
     const { amount, student_info } = req.body;
-    try {
-        const custom_order_id = `ORD-${Date.now()}`;
-        
-        // const callback_url = process.env.FRONTEND_URL || 'http://localhost:5173/dashboard';
-        const callback_url = process.env.FRONTEND_URL + '/dashboard';
+        try {
+            const custom_order_id = `ORD-${Date.now()}`;
+            
+            // const callback_url = process.env.FRONTEND_URL || 'http://localhost:5173/dashboard';
+            const callback_url = process.env.FRONTEND_URL + '/dashboard';
 
-        const signPayload = {
-            school_id: process.env.DEFAULT_SCHOOL_ID,
-            amount: String(amount),
-            callback_url,
-        };
-        
-        const sign = jwt.sign(signPayload, process.env.PG_SECRET_KEY);
+            const signPayload = {
+                school_id: process.env.DEFAULT_SCHOOL_ID,
+                amount: String(amount),
+                callback_url,
+            };
+            
+            const sign = jwt.sign(signPayload, process.env.PG_SECRET_KEY);
 
-        const edvironPayload = { ...signPayload, sign };
+            const edvironPayload = { ...signPayload, sign };
 
-        const edvironResponse = await axios.post(
-            'https://dev-vanilla.edviron.com/erp/create-collect-request',
-            edvironPayload,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.PAYMENT_API_KEY}`
+            const edvironResponse = await axios.post(
+                'https://dev-vanilla.edviron.com/erp/create-collect-request',
+                edvironPayload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.PAYMENT_API_KEY}`
+                    }
                 }
-            }
-        );
+            );
 
-        console.log("edvironResponse : ", edvironResponse.data);
+            console.log("edvironResponse : ", edvironResponse.data);
 
-        const { collect_request_id, collect_request_url, gateway_name } = edvironResponse.data;
-        
-        const newOrder = new Order({
-            school_id: process.env.DEFAULT_SCHOOL_ID,
-            custom_order_id,
-            collect_request_id: collect_request_id,
-            gateway_name: gateway_name || 'Edviron', // Use gateway name from response or a default
-            student_info,
-            amount: amount
-        });
+            const { collect_request_id, collect_request_url, gateway_name } = edvironResponse.data;
+            
+            const newOrder = new Order({
+                school_id: process.env.DEFAULT_SCHOOL_ID,
+                custom_order_id,
+                collect_request_id: collect_request_id,
+                gateway_name: gateway_name || 'Edviron', // Use gateway name from response or a default
+                student_info,
+                amount: amount
+            });
 
-        // console.log("newOrder : ", newOrder);
-        await newOrder.save();
+            // console.log("newOrder : ", newOrder);
+            await newOrder.save();
 
-        const newOrderStatus = new OrderStatus({
-            collect_id: collect_request_id,
-            order_amount: amount,
-            status: 'PENDING'
-        });
-        await newOrderStatus.save();
+            const newOrderStatus = new OrderStatus({
+                collect_id: collect_request_id,
+                order_amount: amount,
+                status: 'PENDING'
+            });
+            await newOrderStatus.save();
 
-        // console.log(" Collect_request_url : ", collect_request_url)
+            // console.log(" Collect_request_url : ", collect_request_url)
 
-        res.json({ paymentUrl: collect_request_url });
+            res.json({ paymentUrl: collect_request_url });
 
-    } catch (error) {
-        console.error("Error creating payment:", error.response ? error.response.data : error.message);
-        res.status(500).json({ 
-            message: "Server error while creating payment",
-            error: error.response ? error.response.data : error.message
-        });
-    }
-    },
+        } catch (error) {
+            console.error("Error creating payment:", error.response ? error.response.data : error.message);
+            res.status(500).json({ 
+                message: "Server error while creating payment",
+                error: error.response ? error.response.data : error.message
+            });
+        }
+        },
 
     handleWebhook: async (req, res) => {
         console.log("==============================================");
