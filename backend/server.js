@@ -7,13 +7,14 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// ✅ CORS setup
 app.use(cors({
-  origin: "*",          // allow all origins
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-// Handle preflight requests globally
-app.options("*", cors());
+// app.options("*", cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,10 +24,8 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/payment', require('./routes/payment.routes'));
 app.use('/api', require('./routes/transaction.routes'));
 
-// Root
 app.get('/', (req, res) => res.send('School Payment API is running...'));
 
 // Start Server
-// const PORT = process.env.PORT || 5001;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-module.exports = app;
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
