@@ -68,21 +68,21 @@ const User = mongoose.model('User', UserSchema);
 // =================================================================================================
 // |                                 File: backend/models/order.model.js                               |
 // =================================================================================================
+// FIX: Corrected Order Schema to match the assessment requirements.
+// File: backend/models/order.model.js
 const orderSchema = new mongoose.Schema({
     school_id: { type: String, required: true },
+    // Trustee ID is now optional and not unique.
+    trustee_id: { type: String, required: false },
     custom_order_id: { type: String, required: true, unique: true },
-    
-    // FIX: Field names updated to match API response and required validation
-    collect_request_id: { type: String, required: true, unique: true }, 
-    // payment_url: { type: String, required: true },
-
+    collect_request_id: { type: String, required: true, unique: true },
+    gateway_name: { type: String },
     student_info: {
         name: String,
         email: String,
+        id: String
     },
-    
     amount: { type: Number, required: true },
-
 }, { timestamps: true });
 
 const Order = mongoose.model('Order', orderSchema);
@@ -159,17 +159,14 @@ const WebhookLog = mongoose.model('WebhookLog', WebhookLogSchema);
 // |                            File: backend/middleware/auth.middleware.js                          |
 // =================================================================================================
 const verifyToken = (req, res, next) => {
-    console.log("req hii")
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
         return res.status(403).send({ message: "No token provided!" });
     }
-    console.log("tokens : ", token)
-    console.log("jwt :", process.env.JWT_SECRET)
+
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        console.log("decode : ", decoded);
         if (err) {
             return res.status(401).send({ message: "Unauthorized!" });
         }
@@ -235,7 +232,6 @@ const paymentController = {
     try {
         const custom_order_id = `ORD-${Date.now()}`;
         
-        // Use a placeholder or a real frontend URL for the callback
         const callback_url = process.env.FRONTEND_URL || 'http://localhost:5173/dashboard';
 
         const signPayload = {
@@ -244,7 +240,6 @@ const paymentController = {
             callback_url,
         };
         
-        // Sign the payload with the PG_KEY
         const sign = jwt.sign(signPayload, process.env.PG_SECRET_KEY);
 
         const edvironPayload = { ...signPayload, sign };
@@ -255,25 +250,25 @@ const paymentController = {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    // ==================================================================
-                    // |                           THE FIX                            |
-                    // ==================================================================
-                    // This ensures the full, correct API key from the .env file is sent
                     'Authorization': `Bearer ${process.env.PAYMENT_API_KEY}`
                 }
             }
         );
 
-        const { collect_request_id, Collect_request_url } = edvironResponse.data;
+        console.log("edvironResponse : ", edvironResponse.data);
+
+        const { collect_request_id, collect_request_url, gateway_name } = edvironResponse.data;
         
-        // Save order details to our local database
         const newOrder = new Order({
             school_id: process.env.DEFAULT_SCHOOL_ID,
             custom_order_id,
             collect_request_id: collect_request_id,
+            gateway_name: gateway_name || 'Edviron', // Use gateway name from response or a default
             student_info,
             amount: amount
         });
+
+        // console.log("newOrder : ", newOrder);
         await newOrder.save();
 
         const newOrderStatus = new OrderStatus({
@@ -283,10 +278,11 @@ const paymentController = {
         });
         await newOrderStatus.save();
 
-        res.json({ paymentUrl: Collect_request_url });
+        console.log(" Collect_request_url : ", collect_request_url)
+
+        res.json({ paymentUrl: collect_request_url });
 
     } catch (error) {
-        // Log the detailed error from the external API for better debugging
         console.error("Error creating payment:", error.response ? error.response.data : error.message);
         res.status(500).json({ 
             message: "Server error while creating payment",
@@ -298,7 +294,6 @@ const paymentController = {
     handleWebhook: async (req, res) => {
         const payload = req.body;
         
-        // 1. Log the webhook payload
         const log = new WebhookLog({ payload });
         await log.save();
         
@@ -313,7 +308,6 @@ const paymentController = {
             
             const collect_id = order_info.order_id;
 
-            // 2. Find and update the order status
             const updatedStatus = await OrderStatus.findOneAndUpdate(
                 { collect_id: collect_id },
                 {
@@ -366,9 +360,7 @@ const transactionController = {
 
             const skip = (page - 1) * limit;
 
-            // Aggregation pipeline to join Order and OrderStatus
             const pipeline = [
-                // 1. Join OrderStatus with Order
                 {
                     $lookup: {
                         from: 'orders',
@@ -377,11 +369,9 @@ const transactionController = {
                         as: 'orderDetails'
                     }
                 },
-                // 2. Deconstruct the orderDetails array
                 {
                     $unwind: '$orderDetails'
                 },
-                // 3. Shape the output
                 {
                     $project: {
                         _id: 0,
@@ -393,14 +383,12 @@ const transactionController = {
                         status: '$status',
                         payment_time: '$payment_time',
                         custom_order_id: '$orderDetails.custom_order_id',
-                        createdAt: '$orderDetails.createdAt' // For sorting
+                        createdAt: '$orderDetails.createdAt'
                     }
                 },
-                // 4. Sorting
                 {
                     $sort: { [sortField]: sortOrder }
                 },
-                // 5. Pagination
                 {
                     $facet: {
                         transactions: [
@@ -445,14 +433,12 @@ const transactionController = {
         try {
             const { custom_order_id } = req.params;
             
-            // Find the order by our custom ID to get the collect_request_id
             const order = await Order.findOne({ custom_order_id });
             
             if (!order) {
                 return res.status(404).json({ message: 'Transaction not found.' });
             }
 
-            // Find the status using the gateway's ID
             const transactionStatus = await OrderStatus.findOne({ collect_id: order.collect_request_id });
 
             if (!transactionStatus) {
@@ -478,8 +464,8 @@ app.use('/api/auth', authRouter);
 
 // --- Payment Routes ---
 const paymentRouter = express.Router();
-paymentRouter.post('/create-payment', verifyToken, paymentController.createPayment); // Protected route
-paymentRouter.post('/webhook', paymentController.handleWebhook); // Webhook should be public
+paymentRouter.post('/create-payment', verifyToken, paymentController.createPayment);
+paymentRouter.post('/webhook', paymentController.handleWebhook);
 app.use('/api/payment', paymentRouter);
 
 // --- Transaction Routes ---

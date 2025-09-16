@@ -21,6 +21,7 @@ const CreatePaymentModal = ({ onClose }) => {
             });
             console.log("REsponse : ", response)
             window.location.href = response.data.paymentUrl;
+            
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create payment link.');
         } finally {
