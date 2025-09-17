@@ -1,9 +1,10 @@
+// frontend/src/pages/DashboardPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../services/api';
-// import CreatePaymentModal from '../components/CreatePaymentModal';
-// import CheckStatusModal from '../components/CheckStatusModal';
+import TransactionChart from '../components/TransactionChart';
 
 const SortableHeader = ({ children, columnKey, sortConfig, setSortConfig }) => {
     const isSorted = sortConfig.key === columnKey;
@@ -19,20 +20,20 @@ const SortableHeader = ({ children, columnKey, sortConfig, setSortConfig }) => {
 
 const DashboardPage = () => {
     const [transactions, setTransactions] = useState([]);
+    const [allTransactions, setAllTransactions] = useState([]); // New state for all transactions
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [totalPages, setTotalPages] = useState(0);
     const [searchParams, setSearchParams] = useSearchParams();
-const [sortConfig, setSortConfig] = useState({ 
-        key: searchParams.get('sort') || 'createdAt', 
-        direction: searchParams.get('order') || 'desc' 
-    });    const [filters, setFilters] = useState({ status: searchParams.get('status') || '', schoolId: searchParams.get('schoolId') || '' });
+    const [sortConfig, setSortConfig] = useState({
+        key: searchParams.get('sort') || 'createdAt',
+        direction: searchParams.get('order') || 'desc'
+    });
+    const [filters, setFilters] = useState({ status: searchParams.get('status') || '', schoolId: searchParams.get('schoolId') || '' });
     const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
-    // const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
-    // const [isStatusModalOpen, setStatusModalOpen] = useState(false);
 
     useEffect(() => {
-        const fetchTransactions = async () => {
+        const fetchPaginatedTransactions = async () => {
             setLoading(true);
             setError('');
             try {
@@ -43,7 +44,6 @@ const [sortConfig, setSortConfig] = useState({
 
                 const response = await api.get('/transactions', { params });
                 setTransactions(response.data.transactions);
-                console.log("transactions ; ", transactions)
                 setTotalPages(response.data.totalPages);
             } catch (err) {
                 setError('Failed to fetch transactions.');
@@ -51,14 +51,26 @@ const [sortConfig, setSortConfig] = useState({
                 setLoading(false);
             }
         };
-        fetchTransactions();
+
+        const fetchAllTransactionsForChart = async () => {
+            try {
+                const response = await api.get('/transactions?limit=1000'); // Fetch a large number of transactions
+                setAllTransactions(response.data.transactions);
+            } catch (err) {
+                console.error('Failed to fetch all transactions for chart:', err);
+            }
+        };
+
+        fetchPaginatedTransactions();
+        fetchAllTransactionsForChart();
     }, [currentPage, sortConfig, filters, setSearchParams]);
+
 
     const handleFilterChange = (e) => {
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
         setCurrentPage(1);
     };
-    
+
     const clearFilters = () => {
         setFilters({ status: '', schoolId: '' });
         setCurrentPage(1);
@@ -68,11 +80,11 @@ const [sortConfig, setSortConfig] = useState({
         <div className="container mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold">Transactions</h1>
-                {/* <div className="flex space-x-4">
-                    <button onClick={() => setStatusModalOpen(true)} className="px-4 py-2 bg-white border rounded-md">Check Status</button>
-                    <button onClick={() => setPaymentModalOpen(true)} className="px-4 py-2 bg-indigo-600 text-white rounded-md">Create Payment</button>
-                </div> */}
             </div>
+
+            {/* Pass all transactions to the chart */}
+            <TransactionChart data={allTransactions} />
+
             <div className="p-4 bg-white rounded-lg shadow mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <input type="text" name="schoolId" placeholder="Filter by School ID" value={filters.schoolId} onChange={handleFilterChange} className="w-full px-3 py-2 border rounded-md" />
@@ -127,13 +139,11 @@ const [sortConfig, setSortConfig] = useState({
             </div>
             {totalPages > 1 && (
                 <div className="flex justify-between items-center mt-6">
-                     <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-4 py-2 border rounded-md disabled:opacity-50">Previous</button>
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-4 py-2 border rounded-md disabled:opacity-50">Previous</button>
                     <span>Page {currentPage} of {totalPages}</span>
-                     <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-4 py-2 border rounded-md disabled:opacity-50">Next</button>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-4 py-2 border rounded-md disabled:opacity-50">Next</button>
                 </div>
             )}
-            {/* {isPaymentModalOpen && <CreatePaymentModal onClose={() => setPaymentModalOpen(false)} />}
-            {isStatusModalOpen && <CheckStatusModal onClose={() => setStatusModalOpen(false)} />} */}
         </div>
     );
 };

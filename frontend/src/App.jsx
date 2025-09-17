@@ -10,10 +10,12 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import CreatePaymentPage from './pages/CreatePaymentPage'; // Import the new page
 import CheckStatusPage from './pages/CheckStatusPage';   // Import the new page
+import { ThemeProvider } from './context/ThemeContext'; // Import ThemeProvider
 
 function App() {
   return (
     <AuthProvider>
+      <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -36,6 +38,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
