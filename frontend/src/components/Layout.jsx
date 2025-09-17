@@ -1,14 +1,10 @@
-// frontend/src/components/Layout.jsx
-
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LogOut, LayoutDashboard, CreditCard, HelpCircle, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const Layout = () => {
     const { user, logout } = useAuth();
-    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -41,15 +37,6 @@ const Layout = () => {
                 </nav>
                 <div className="px-4 py-4 border-t border-gray-700">
                     <div className="text-sm text-gray-400 truncate" title={user?.email}>{user?.email}</div>
-
-                    {/* Dark Mode Toggle Button */}
-                    <button
-                        onClick={toggleTheme}
-                        className="w-full flex items-center mt-2 px-4 py-2 text-left text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors duration-200"
-                    >
-                        {theme === 'light' ? <Moon className="w-5 h-5 mr-3" /> : <Sun className="w-5 h-5 mr-3" />}
-                        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-                    </button>
 
                     <button
                         onClick={handleLogout}
