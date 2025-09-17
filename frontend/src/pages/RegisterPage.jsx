@@ -1,3 +1,4 @@
+// frontend/src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -30,17 +31,17 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
-                <h1 className="text-3xl font-bold text-center">Create an Account</h1>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white">Create an Account</h1>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label htmlFor="email">Email Address</label>
-                        <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border rounded-md" />
+                        <label htmlFor="email"  className="text-gray-700 dark:text-gray-300">Email Address</label>
+                        <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div>
-                        <label htmlFor="password">Password</label>
-                        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="mt-1 block w-full px-3 py-2 border rounded-md" />
+                        <label htmlFor="password"  className="text-gray-700 dark:text-gray-300">Password</label>
+                        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="mt-1 block w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     {error && <p className="text-sm text-red-600">{error}</p>}
                     {success && <p className="text-sm text-green-600">{success}</p>}
@@ -48,7 +49,7 @@ const RegisterPage = () => {
                         {isSubmitting ? 'Registering...' : 'Register'}
                     </button>
                 </form>
-                <p className="text-sm text-center">Have an account? <Link to="/login" className="font-medium text-indigo-600">Sign in</Link></p>
+                <p className="text-sm text-center text-gray-700 dark:text-gray-300">Have an account? <Link to="/login" className="font-medium text-indigo-600">Sign in</Link></p>
             </div>
         </div>
     );
