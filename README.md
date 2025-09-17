@@ -86,12 +86,9 @@ VITE_API_BASE_URL=http://localhost:5001/api
 -   **Login Page**: A secure login page for existing users.
 -   **Registration Page**: A simple registration page for new users.
 
+<img width="1918" height="910" alt="Screenshot 2025-09-17 144926" src="https://github.com/user-attachments/assets/096e706f-0310-4d8d-b524-985043da3492" />
 
-<img width="1897" height="893" alt="Screenshot 202<img width="1918" height="910" alt="Screenshot 2025-09-17 144926" src="https://github.com/user-attachments/assets/34b5051e-b4bc-4db0-a35a-37f06bb33ebd" />
-5-09-17 144848" src="https://github.com/user-attachments/assets/ae95c10a-8487-4e5d-b61b-af83fabbd52a" />
-
-
-![Uploading Screenshot 2025-09-17 144926.png…]()
+<img width="1897" height="893" alt="Screenshot 2025-09-17 144848" src="https://github.com/user-attachments/assets/1ecc677d-c816-4f77-b48e-17b76be527cb" />
 
 
 ### Dashboard
