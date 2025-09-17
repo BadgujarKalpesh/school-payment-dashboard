@@ -97,11 +97,10 @@ VITE_API_BASE_URL=http://localhost:5001/api
 
 -   **Transactions Overview**: Displays a paginated list of all transactions with filtering and sorting options.
 -   **Transaction Chart**: A bar chart that visualizes the status of all transactions.
--   
-<img width="1885" height="900" alt="Screenshot 2025-09-17 144714" src="https://github.com/user-attachments/assets/39da2c87-1bf1-42a1-aec3-d44a7ddda2f7" />
 
-<img width="1883" height="897" alt="Screenshot 2025-09-17 144748" src="https://github.com/user-attachments/assets/1e585eb1-3d8e-4cb2-83bb-5d9e1011b1e5" />
+<img width="1885" height="900" alt="Screenshot 2025-09-17 151857" src="https://github.com/user-attachments/assets/41407f5c-0d57-4348-90e8-2a652dbfd374" />
 
+<img width="1876" height="898" alt="Screenshot 2025-09-17 151910" src="https://github.com/user-attachments/assets/3ca8bdeb-5faf-4f71-9989-620a603a1af7" />
 
 ### Create Payment
 
