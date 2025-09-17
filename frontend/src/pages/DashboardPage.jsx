@@ -103,7 +103,7 @@ const DashboardPage = () => {
                     <table className="min-w-full divide-y">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <SortableHeader columnKey="name" sortConfig={sortConfig} setSortConfig={setSortConfig}>Name</SortableHeader>
+                                <SortableHeader columnKey="name" sortConfig={sortConfig} setSortConfig={setSortConfig}>Custom Order ID</SortableHeader>
                                 <SortableHeader columnKey="custom_order_id" sortConfig={sortConfig} setSortConfig={setSortConfig}>Order ID</SortableHeader>
                                 <SortableHeader columnKey="school_id" sortConfig={sortConfig} setSortConfig={setSortConfig}>School ID</SortableHeader>
                                 <SortableHeader columnKey="status" sortConfig={sortConfig} setSortConfig={setSortConfig}>Status</SortableHeader>
@@ -121,7 +121,7 @@ const DashboardPage = () => {
                             ) : (
                                 transactions.map((tx) => (
                                     <tr key={tx.collect_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.student_info.name}</td>
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.custom_order_id}</td>
                                         <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.collect_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap dark:text-gray-300">{tx.school_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap">
