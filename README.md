@@ -2,6 +2,8 @@
 
 This is a full-stack application that provides a dashboard for managing school payments. It includes a backend API built with Node.js, Express, and MongoDB, and a frontend client built with React, Vite, and Tailwind CSS.
 
+Live Link :- https://school-payment-dashboard-j8fn.vercel.app/register
+
 ## Features
 
 - **User Authentication**: Secure JWT-based authentication for user registration and login.
