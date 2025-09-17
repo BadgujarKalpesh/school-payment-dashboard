@@ -119,6 +119,34 @@ VITE_API_BASE_URL=http://localhost:5001/api
 
 ---
 
+## Webhook Testing
+
+To test the webhook functionality, you can send a `POST` request to the following endpoint with the provided payload. This will simulate a successful payment notification from the payment gateway.
+
+**API Endpoint**:
+`POST https://school-payment-dashboard-zeta.vercel.app/api/payment/webhook`
+
+**Payload**:
+```json
+{
+  "status": 200,
+  "order_info": {
+    "order_id": "68ca4d39154d1bce65b4f3ee",
+    "order_amount": 100,
+    "transaction_amount": 100,
+    "gateway": "PhonePe",
+    "bank_reference": "YESBNK12345",
+    "status": "success",
+    "payment_mode": "upi",
+    "payemnt_details": "success@upi",
+    "Payment_message": "payment success",
+    "payment_time": "2025-09-16T08:14:21.945Z",
+    "error_message": "NA"
+  }
+}
+```
+
+
 ## Built With
 
 -   [React](https://reactjs.org/)
