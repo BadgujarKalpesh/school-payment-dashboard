@@ -122,7 +122,7 @@ const DashboardPage = () => {
                                 transactions.map((tx) => (
                                     <tr key={tx.collect_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.student_info.name}</td>
-                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.custom_order_id}</td>
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap dark:text-white">{tx.collect_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap dark:text-gray-300">{tx.school_id}</td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-800' : tx.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
