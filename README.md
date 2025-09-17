@@ -87,20 +87,35 @@ VITE_API_BASE_URL=http://localhost:5001/api
 -   **Registration Page**: A simple registration page for new users.
 
 
+<img width="1897" height="893" alt="Screenshot 202<img width="1918" height="910" alt="Screenshot 2025-09-17 144926" src="https://github.com/user-attachments/assets/34b5051e-b4bc-4db0-a35a-37f06bb33ebd" />
+5-09-17 144848" src="https://github.com/user-attachments/assets/ae95c10a-8487-4e5d-b61b-af83fabbd52a" />
+
+
+![Uploading Screenshot 2025-09-17 144926.png…]()
+
+
 ### Dashboard
 
 -   **Transactions Overview**: Displays a paginated list of all transactions with filtering and sorting options.
 -   **Transaction Chart**: A bar chart that visualizes the status of all transactions.
+-   
+<img width="1885" height="900" alt="Screenshot 2025-09-17 144714" src="https://github.com/user-attachments/assets/39da2c87-1bf1-42a1-aec3-d44a7ddda2f7" />
+
+<img width="1883" height="897" alt="Screenshot 2025-09-17 144748" src="https://github.com/user-attachments/assets/1e585eb1-3d8e-4cb2-83bb-5d9e1011b1e5" />
 
 
 ### Create Payment
 
 -   **Payment Form**: A simple form to create new payment requests for students.
 
+<img width="1905" height="899" alt="Screenshot 2025-09-17 144805" src="https://github.com/user-attachments/assets/d35bb3d0-dbe4-4584-8639-7de2010a5b96" />
 
 ### Check Status
 
 -   **Status Checker**: A dedicated page to check the real-time status of a transaction using its custom order ID.
+
+
+<img width="1911" height="897" alt="Screenshot 2025-09-17 144836" src="https://github.com/user-attachments/assets/1ff4c3b1-a66a-4b59-bf60-6ead72851c98" />
 
 
 ---
