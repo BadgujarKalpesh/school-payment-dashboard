@@ -25,7 +25,7 @@ This is a full-stack application that provides a dashboard for managing school p
 1.  **Clone the repository**:
 
     ```bash
-    git clone [https://github.com/badgujarkalpesh/school-payment-dashboard.git](https://github.com/badgujarkalpesh/school-payment-dashboard.git)
+    git clone https://github.com/BadgujarKalpesh/school-payment-dashboard.git
     cd school-payment-dashboard
     ```
 
